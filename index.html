@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Awesome Bounty Notes — Security Field Book</title>
+<meta name="description" content="A structured, living book of bug bounty research — JWT, web vulnerabilities, tools, and real bounty writeups.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=JetBrains+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f1117;
+  --ink2: #1e2130;
+  --ink3: #2d3148;
+  --paper: #f5f0e8;
+  --paper2: #ede8dc;
+  --paper3: #e2dccf;
+  --line: rgba(15,17,23,0.1);
+  --line2: rgba(15,17,23,0.18);
+  --accent: #c8472a;
+  --accent2: #1a4f7a;
+  --accent3: #2d7a4f;
+  --gold: #b8860b;
+  --text: #0f1117;
+  --text2: #3d4155;
+  --text3: #6b7080;
+  --mono: 'JetBrains Mono', monospace;
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'DM Sans', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Paper texture via CSS */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(15,17,23,0.04) 27px,
+      rgba(15,17,23,0.04) 28px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Red margin line — classic notebook */
+body::after {
+  content: '';
+  position: fixed;
+  left: 72px;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: rgba(200,71,42,0.25);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== HEADER / SPINE ===== */
+header {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  border-bottom: 2px solid var(--ink);
+}
+
+.spine {
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px 0 88px;
+  height: 52px;
+  gap: 20px;
+}
+
+.spine-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.6);
+}
+
+.spine-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.spine-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(245,240,232,0.4);
+  letter-spacing: 0.1em;
+}
+
+.spine-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  z-index: 1;
+  padding: 80px 40px 60px 120px;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-kicker::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(42px, 6vw, 80px);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-subtitle {
+  font-family: var(--serif);
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: 400;
+  color: var(--text2);
+  font-style: italic;
+  margin-bottom: 32px;
+  line-height: 1.4;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.meta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.meta-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text3);
+}
+
+.meta-val {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.hero-desc {
+  margin-top: 28px;
+  max-width: 620px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text2);
+  font-weight: 300;
+  border-left: 3px solid var(--accent);
+  padding-left: 20px;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.main-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px 80px 120px;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 60px;
+  align-items: start;
+}
+
+/* ===== CHAPTERS (LEFT) ===== */
+.chapters { padding-top: 60px; }
+
+.chapter-section { margin-bottom: 60px; }
+
+.ch-section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text3);
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ch-section-label span {
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+/* Chapter card */
+.chapter-card {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 0;
+  border: 1px solid var(--line2);
+  border-radius: 2px;
+  margin-bottom: 2px;
+  background: var(--paper);
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  position: relative;
+}
+
+.chapter-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--chapter-color, var(--ink));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.chapter-card:hover {
+  background: rgba(255,255,255,0.7);
+  border-color: var(--line2);
+  transform: translateX(4px);
+  box-shadow: -4px 0 0 var(--chapter-color, var(--ink));
+}
+
+.chapter-card:hover::before { opacity: 1; }
+
+.ch-num {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 0 20px;
+  font-family: var(--serif);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 0.05em;
+  border-right: 1px solid var(--line);
+}
+
+.ch-body {
+  padding: 18px 20px 18px 22px;
+}
+
+.ch-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.ch-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.ch-badges {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ch-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.badge-done { background: rgba(45,122,79,0.1); color: var(--accent3); border: 1px solid rgba(45,122,79,0.25); }
+.badge-wip { background: rgba(184,134,11,0.1); color: var(--gold); border: 1px solid rgba(184,134,11,0.25); }
+.badge-planned { background: rgba(61,65,85,0.08); color: var(--text3); border: 1px solid var(--line2); }
+.badge-tool { background: rgba(26,79,122,0.1); color: var(--accent2); border: 1px solid rgba(26,79,122,0.2); }
+.badge-new { background: rgba(200,71,42,0.1); color: var(--accent); border: 1px solid rgba(200,71,42,0.25); }
+
+.ch-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+  font-weight: 300;
+  margin-bottom: 12px;
+}
+
+.ch-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ch-link {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent2);
+  text-decoration: none;
+  padding: 4px 10px;
+  border: 1px solid rgba(26,79,122,0.2);
+  border-radius: 2px;
+  background: rgba(26,79,122,0.04);
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ch-link:hover {
+  background: rgba(26,79,122,0.1);
+  border-color: rgba(26,79,122,0.4);
+  color: var(--ink);
+}
+
+.ch-link.primary {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.ch-link.primary:hover {
+  background: var(--ink2);
+}
+
+.ch-sub-items {
+  margin-top: 1px;
+  margin-left: 52px;
+}
+
+.ch-sub {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px 10px 22px;
+  border: 1px solid var(--line);
+  border-top: none;
+  background: rgba(255,255,255,0.3);
+  font-size: 12px;
+  color: var(--text2);
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.ch-sub:hover { background: rgba(255,255,255,0.7); color: var(--ink); }
+.ch-sub:last-child { margin-bottom: 16px; }
+
+.ch-sub-icon { font-size: 13px; flex-shrink: 0; }
+
+.ch-sub-title {
+  flex: 1;
+  font-weight: 400;
+}
+
+.ch-sub-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  white-space: nowrap;
+}
+
+/* Coming soon card */
+.chapter-card.coming-soon {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.chapter-card.coming-soon .ch-title { color: var(--text3); }
+
+/* ===== SIDEBAR (RIGHT) ===== */
+.sidebar {
+  padding-top: 60px;
+  position: sticky;
+  top: 20px;
+}
+
+.sidebar-block {
+  margin-bottom: 36px;
+  padding-bottom: 36px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sidebar-block:last-child {
+  border-bottom: none;
+}
+
+.sb-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text3);
+  margin-bottom: 14px;
+}
+
+/* Progress */
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.pi-label {
+  font-size: 12px;
+  color: var(--text2);
+  flex: 1;
+  font-weight: 300;
+}
+
+.pi-bar {
+  width: 80px;
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.pi-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+.pi-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Quick stats */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--line2);
+  font-size: 12px;
+}
+
+.stat-row:last-child { border-bottom: none; }
+.sr-label { color: var(--text3); font-weight: 300; }
+.sr-val { font-family: var(--mono); font-size: 11px; color: var(--ink); font-weight: 500; }
+.sr-val.green { color: var(--accent3); }
+.sr-val.red { color: var(--accent); }
+
+/* Recent activity */
+.activity-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--line2);
+  align-items: flex-start;
+}
+
+.activity-item:last-child { border-bottom: none; }
+
+.ai-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.ai-text {
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+.ai-time {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  white-space: nowrap;
+  margin-top: 1px;
+}
+
+/* Table of contents */
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+  color: var(--text2);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--line);
+  transition: color 0.15s;
+}
+
+.toc-item:hover { color: var(--ink); }
+.toc-item:last-child { border-bottom: none; }
+
+.toc-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  min-width: 24px;
+}
+
+.toc-dots {
+  flex: 1;
+  border-bottom: 1px dotted var(--line2);
+  margin: 0 4px 3px;
+}
+
+.toc-page {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+}
+
+/* ===== FOOTER ===== */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 2px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 32px 40px 32px 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-left {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  font-style: italic;
+  color: rgba(245,240,232,0.8);
+}
+
+.footer-center {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(245,240,232,0.35);
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+.footer-right {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-link {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(245,240,232,0.4);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: color 0.2s;
+}
+
+.footer-link:hover { color: rgba(245,240,232,0.8); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 860px) {
+  body::after { display: none; }
+  .hero { padding: 60px 24px 48px 24px; }
+  .main-wrap { grid-template-columns: 1fr; padding: 0 24px 60px; gap: 0; }
+  .sidebar { position: static; padding-top: 0; border-top: 2px solid var(--line); margin-top: 40px; }
+  footer { padding: 28px 24px; }
+  .spine { padding: 0 24px; }
+  .chapter-card:hover { transform: none; box-shadow: 4px 0 0 var(--chapter-color, var(--ink)) inset; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 36px; }
+  .ch-top { flex-direction: column; gap: 6px; }
+  .hero-meta { gap: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Spine / Top bar -->
+<header>
+  <div class="spine">
+    <span class="spine-title">Vraj's Bug Bounty Field Notes</span>
+    <div class="spine-right">
+      <span class="spine-tag">github.com/vrajbhai/awesome-bounty-notes</span>
+      <div class="spine-dot" title="Active — being updated"></div>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-kicker">Security Research Notes</div>
+  <h1 class="hero-title">Awesome<br><em>Bounty Notes</em></h1>
+  <p class="hero-subtitle">A structured field book of web security research,<br>attack techniques, tools & real bounty findings.</p>
+
+  <div class="hero-meta">
+    <div class="meta-block">
+      <span class="meta-label">Author</span>
+      <span class="meta-val">Vrajbhai</span>
+    </div>
+    <div class="meta-block">
+      <span class="meta-label">Topics covered</span>
+      <span class="meta-val">1 of many</span>
+    </div>
+    <div class="meta-block">
+      <span class="meta-label">Status</span>
+      <span class="meta-val">🟢 Active</span>
+    </div>
+    <div class="meta-block">
+      <span class="meta-label">Labs solved</span>
+      <span class="meta-val">8 / 8 JWT ✓</span>
+    </div>
+  </div>
+
+  <p class="hero-desc">
+    This is a living reference book — not a finished product. Every page is built from real lab experience, CVE research, and bug bounty hunting. Add to it as you learn. Break it. Rebuild it. That's the point.
+  </p>
+</div>
+
+<!-- Main: Chapters + Sidebar -->
+<div class="main-wrap">
+
+  <!-- LEFT: Chapters -->
+  <div class="chapters">
+
+    <!-- Section: Web Auth -->
+    <div class="chapter-section">
+      <div class="ch-section-label"><span>🔐</span> Authentication & Tokens</div>
+
+      <!-- JWT — COMPLETE -->
+      <a class="chapter-card" href="JWT/index.html" style="--chapter-color: #c8472a">
+        <div class="ch-num">Ch.1</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">JSON Web Tokens (JWT)</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-done">✓ Complete</span>
+              <span class="ch-badge badge-new">8/8 Labs</span>
+            </div>
+          </div>
+          <p class="ch-desc">Full coverage — token structure, RS256/HS256, all 8 PortSwigger labs solved, algorithm confusion, JKU/JWK injection, kid traversal, hidden key derivation, real bug bounty cases and CVEs.</p>
+          <div class="ch-links">
+            <a class="ch-link primary" href="JWT/index.html" onclick="event.stopPropagation()">📖 Open Notes →</a>
+            <a class="ch-link" href="https://vrajbhai.github.io/JWToken-analyzer/" target="_blank" onclick="event.stopPropagation()">🔬 JWT Analyzer Tool ↗</a>
+            <a class="ch-link" href="https://portswigger.net/web-security/jwt" target="_blank" onclick="event.stopPropagation()">🎯 PortSwigger Labs ↗</a>
+          </div>
+        </div>
+      </a>
+
+      <!-- JWT sub-pages -->
+      <div class="ch-sub-items">
+        <a class="ch-sub" href="https://vrajbhai.github.io/JWToken-analyzer/" target="_blank">
+          <span class="ch-sub-icon">🔬</span>
+          <span class="ch-sub-title">JWT Analyzer & Tester — Interactive Tool</span>
+          <span class="ch-sub-badge">tool · live</span>
+        </a>
+        <a class="ch-sub" href="JWT/index.html#attacks" onclick="event.stopPropagation()">
+          <span class="ch-sub-icon">💀</span>
+          <span class="ch-sub-title">All Attack Types — none, confusion, JKU, kid, brute-force</span>
+          <span class="ch-sub-badge">9+ attacks</span>
+        </a>
+        <a class="ch-sub" href="JWT/index.html#labs" onclick="event.stopPropagation()">
+          <span class="ch-sub-icon">✅</span>
+          <span class="ch-sub-title">PortSwigger Labs — 8/8 Solved with step-by-step notes</span>
+          <span class="ch-sub-badge">8/8 done</span>
+        </a>
+        <a class="ch-sub" href="JWT/index.html#decoder" onclick="event.stopPropagation()">
+          <span class="ch-sub-icon">🔍</span>
+          <span class="ch-sub-title">Built-in JWT Decoder — paste token, instant analysis</span>
+          <span class="ch-sub-badge">built-in tool</span>
+        </a>
+        <a class="ch-sub" href="JWT/index.html#checklist" onclick="event.stopPropagation()">
+          <span class="ch-sub-icon">☑</span>
+          <span class="ch-sub-title">Hunt Checklist — 20 items, saves to browser</span>
+          <span class="ch-sub-badge">interactive</span>
+        </a>
+      </div>
+
+      <!-- OAuth — Planned -->
+      <div class="chapter-card coming-soon" style="--chapter-color: #b8860b">
+        <div class="ch-num">Ch.2</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">OAuth 2.0 & OpenID Connect</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-planned">Planned</span>
+            </div>
+          </div>
+          <p class="ch-desc">Authorization code flow, implicit flow, token leakage, state parameter bypass, redirect_uri manipulation, open redirect chains, PKCE bypass, account takeover via OAuth.</p>
+          <div class="ch-links">
+            <span class="ch-link" style="opacity:0.4; pointer-events:none">📖 Coming soon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session — Planned -->
+      <div class="chapter-card coming-soon" style="--chapter-color: #2d7a4f">
+        <div class="ch-num">Ch.3</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">Session Management</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-planned">Planned</span>
+            </div>
+          </div>
+          <p class="ch-desc">Session fixation, session hijacking, CSRF, cookie flags (HttpOnly, Secure, SameSite), sliding sessions, forced logout bypass, multi-session abuse.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Injection -->
+    <div class="chapter-section">
+      <div class="ch-section-label"><span>💉</span> Injection Attacks</div>
+
+      <div class="chapter-card coming-soon" style="--chapter-color: #1a4f7a">
+        <div class="ch-num">Ch.4</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">SQL Injection</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-planned">Planned</span>
+            </div>
+          </div>
+          <p class="ch-desc">Classic, blind, time-based, out-of-band SQLi. WAF bypass techniques, second-order injection, ORM injection, sqlmap usage, real bounty examples.</p>
+        </div>
+      </div>
+
+      <div class="chapter-card coming-soon" style="--chapter-color: #c8472a">
+        <div class="ch-num">Ch.5</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">Cross-Site Scripting (XSS)</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-planned">Planned</span>
+            </div>
+          </div>
+          <p class="ch-desc">Reflected, stored, DOM-based XSS. Context-aware bypasses, CSP bypass, XSS to account takeover chains, exfiltration techniques, blind XSS.</p>
+        </div>
+      </div>
+
+      <div class="chapter-card coming-soon" style="--chapter-color: #2d7a4f">
+        <div class="ch-num">Ch.6</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">Server-Side Request Forgery (SSRF)</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-planned">Planned</span>
+            </div>
+          </div>
+          <p class="ch-desc">Basic SSRF, blind SSRF, cloud metadata attacks (AWS/GCP/Azure), SSRF via PDF/image generation, filter bypasses, SSRF to RCE chains.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Access Control -->
+    <div class="chapter-section">
+      <div class="ch-section-label"><span>🚪</span> Access Control & Logic</div>
+
+      <div class="chapter-card coming-soon" style="--chapter-color: #b8860b">
+        <div class="ch-num">Ch.7</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">Broken Access Control (IDOR)</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-planned">Planned</span>
+            </div>
+          </div>
+          <p class="ch-desc">IDOR patterns, horizontal vs vertical privilege escalation, UUID prediction, mass assignment, forced browsing, parameter pollution.</p>
+        </div>
+      </div>
+
+      <div class="chapter-card coming-soon" style="--chapter-color: #1a4f7a">
+        <div class="ch-num">Ch.8</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">Business Logic Flaws</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-planned">Planned</span>
+            </div>
+          </div>
+          <p class="ch-desc">Race conditions, negative price attacks, workflow bypass, multi-step process manipulation, coupon stacking, rate limit abuse.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Tools -->
+    <div class="chapter-section">
+      <div class="ch-section-label"><span>🛠</span> Tools & References</div>
+
+      <a class="chapter-card" href="https://vrajbhai.github.io/JWToken-analyzer/" target="_blank" style="--chapter-color: #1a4f7a">
+        <div class="ch-num">T.1</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">JWT Analyzer & Tester</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-done">✓ Live</span>
+              <span class="ch-badge badge-tool">Interactive</span>
+            </div>
+          </div>
+          <p class="ch-desc">Decode, audit, brute-force, forge and simulate JWT attacks. Built-in wordlist cracker, attack demos, Python fix templates, token history. Fully browser-based.</p>
+          <div class="ch-links">
+            <a class="ch-link primary" href="https://vrajbhai.github.io/JWToken-analyzer/" target="_blank" onclick="event.stopPropagation()">🔬 Open Tool ↗</a>
+          </div>
+        </div>
+      </a>
+
+      <div class="chapter-card coming-soon" style="--chapter-color: #2d7a4f">
+        <div class="ch-num">T.2</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">Recon & Enumeration Toolkit</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-planned">Planned</span>
+            </div>
+          </div>
+          <p class="ch-desc">Subfinder, httpx, nuclei, ffuf, gau, waybackurls — chained recon workflows with real examples. Commands, flags, output parsing.</p>
+        </div>
+      </div>
+
+      <div class="chapter-card coming-soon" style="--chapter-color: #c8472a">
+        <div class="ch-num">T.3</div>
+        <div class="ch-body">
+          <div class="ch-top">
+            <div class="ch-title">Burp Suite Playbook</div>
+            <div class="ch-badges">
+              <span class="ch-badge badge-planned">Planned</span>
+            </div>
+          </div>
+          <p class="ch-desc">Extensions, macros, Intruder patterns, Collaborator usage, Match & Replace rules, Repeater tips, project organisation for long hunts.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Sidebar -->
+  <div class="sidebar">
+
+    <!-- Progress -->
+    <div class="sidebar-block">
+      <div class="sb-title">Book Progress</div>
+      <div class="progress-item">
+        <span class="pi-label">JWT</span>
+        <div class="pi-bar"><div class="pi-fill" style="width:100%; background:#2d7a4f"></div></div>
+        <span class="pi-count" style="color:#2d7a4f">100%</span>
+      </div>
+      <div class="progress-item">
+        <span class="pi-label">OAuth</span>
+        <div class="pi-bar"><div class="pi-fill" style="width:0%; background:#b8860b"></div></div>
+        <span class="pi-count">0%</span>
+      </div>
+      <div class="progress-item">
+        <span class="pi-label">SQLi</span>
+        <div class="pi-bar"><div class="pi-fill" style="width:0%; background:#1a4f7a"></div></div>
+        <span class="pi-count">0%</span>
+      </div>
+      <div class="progress-item">
+        <span class="pi-label">XSS</span>
+        <div class="pi-bar"><div class="pi-fill" style="width:0%; background:#c8472a"></div></div>
+        <span class="pi-count">0%</span>
+      </div>
+      <div class="progress-item">
+        <span class="pi-label">SSRF</span>
+        <div class="pi-bar"><div class="pi-fill" style="width:0%; background:#2d7a4f"></div></div>
+        <span class="pi-count">0%</span>
+      </div>
+      <div class="progress-item">
+        <span class="pi-label">IDOR</span>
+        <div class="pi-bar"><div class="pi-fill" style="width:0%; background:#b8860b"></div></div>
+        <span class="pi-count">0%</span>
+      </div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="sidebar-block">
+      <div class="sb-title">Field Stats</div>
+      <div class="stat-row">
+        <span class="sr-label">Labs solved</span>
+        <span class="sr-val green">8 / 8</span>
+      </div>
+      <div class="stat-row">
+        <span class="sr-label">Attack vectors</span>
+        <span class="sr-val">11+</span>
+      </div>
+      <div class="stat-row">
+        <span class="sr-label">CVEs referenced</span>
+        <span class="sr-val">4</span>
+      </div>
+      <div class="stat-row">
+        <span class="sr-label">Real bounty cases</span>
+        <span class="sr-val">4</span>
+      </div>
+      <div class="stat-row">
+        <span class="sr-label">Live tools</span>
+        <span class="sr-val green">1</span>
+      </div>
+      <div class="stat-row">
+        <span class="sr-label">Chapters planned</span>
+        <span class="sr-val">11</span>
+      </div>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="sidebar-block">
+      <div class="sb-title">Recent Updates</div>
+      <div class="activity-item">
+        <div class="ai-dot" style="background:#2d7a4f"></div>
+        <div>
+          <div class="ai-text">JWT chapter complete — all 8 PortSwigger labs solved</div>
+          <div class="ai-time">Latest</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="ai-dot" style="background:#1a4f7a"></div>
+        <div>
+          <div class="ai-text">JWT Analyzer tool published to GitHub Pages</div>
+          <div class="ai-time">Recent</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="ai-dot" style="background:#c8472a"></div>
+        <div>
+          <div class="ai-text">Expert lab solved — algorithm confusion with no exposed key (Docker sig2n)</div>
+          <div class="ai-time">Recent</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="ai-dot" style="background:#b8860b"></div>
+        <div>
+          <div class="ai-text">Built-in JWT decoder with auto vulnerability detection added</div>
+          <div class="ai-time">Recent</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="sidebar-block">
+      <div class="sb-title">Contents</div>
+      <a class="toc-item" href="JWT/index.html">
+        <span class="toc-num">Ch.1</span>
+        <span>JWT</span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">●</span>
+      </a>
+      <div class="toc-item" style="opacity:0.4; pointer-events:none">
+        <span class="toc-num">Ch.2</span>
+        <span>OAuth</span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">–</span>
+      </div>
+      <div class="toc-item" style="opacity:0.4; pointer-events:none">
+        <span class="toc-num">Ch.3</span>
+        <span>Sessions</span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">–</span>
+      </div>
+      <div class="toc-item" style="opacity:0.4; pointer-events:none">
+        <span class="toc-num">Ch.4</span>
+        <span>SQLi</span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">–</span>
+      </div>
+      <div class="toc-item" style="opacity:0.4; pointer-events:none">
+        <span class="toc-num">Ch.5</span>
+        <span>XSS</span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">–</span>
+      </div>
+      <div class="toc-item" style="opacity:0.4; pointer-events:none">
+        <span class="toc-num">Ch.6</span>
+        <span>SSRF</span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">–</span>
+      </div>
+      <div class="toc-item" style="opacity:0.4; pointer-events:none">
+        <span class="toc-num">Ch.7</span>
+        <span>IDOR</span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">–</span>
+      </div>
+      <a class="toc-item" href="https://vrajbhai.github.io/JWToken-analyzer/" target="_blank">
+        <span class="toc-num">T.1</span>
+        <span>JWT Tool</span>
+        <span class="toc-dots"></span>
+        <span class="toc-page">↗</span>
+      </a>
+    </div>
+
+    <!-- Note to self -->
+    <div style="background: var(--paper2); border: 1px solid var(--line2); border-radius: 2px; padding: 14px 16px; border-left: 3px solid var(--gold);">
+      <div class="sb-title" style="color: var(--gold)">Note to self</div>
+      <p style="font-size: 12px; color: var(--text2); line-height: 1.7; font-style: italic; font-weight: 300;">
+        "Add a new chapter every time you finish a topic on PortSwigger. Keep the notes raw and real — this is for you, not for show."
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-left">Awesome Bounty Notes</div>
+  <div class="footer-center">
+    A living security field book by Vrajbhai<br>
+    github.com/vrajbhai/awesome-bounty-notes
+  </div>
+  <div class="footer-right">
+    <a class="footer-link" href="https://github.com/vrajbhai/awesome-bounty-notes" target="_blank">GitHub ↗</a>
+    <a class="footer-link" href="https://vrajbhai.github.io/JWToken-analyzer/" target="_blank">JWT Tool ↗</a>
+    <a class="footer-link" href="JWT/index.html">JWT Notes →</a>
+  </div>
+</footer>
+
+</body>
+</html>
